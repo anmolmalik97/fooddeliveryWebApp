@@ -1,0 +1,45 @@
+body{
+	background-color: white;
+}
+#head{
+	background-image: url(bg2.jpg);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	height: 400px;
+	padding-top: 7%;
+}
+.container{
+	text-align: center;
+}
+h2{
+	color: white;
+	font-family: 'Cabin', sans-serif;
+	font-size: 45px;
+	text-shadow: 0px 4px 3px rgba(0,0,0,0.4),
+				 0px 8px 3px rgba(0,0,0,0.1),
+				 0px 18px 23px rgba(0,0,0,0.1);
+	
+}
+h3{
+	color: black
+	font-family: 'Cabin', sans-serif;
+	font-size: 45px;
+	
+}
+.bt{
+	background-color: white;
+	color: black;
+}
+.row{
+	text-align: center;
+	margin: 0 auto;
+}
+
+#swrap2{
+	display: inline-block;
+	margin-right: 10px;
+}
+#swrap3{
+	display: inline-block;
+}

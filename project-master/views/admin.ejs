@@ -1,0 +1,26 @@
+<% include partials/header %>
+
+<div class="container">
+    <header class="jumbotron">
+        <div class="container">
+            <h1>Welcome Admin</h1>
+            <p>View Customer Details</p>
+            
+        </div>
+    </header>
+
+
+
+        <div>
+        <p>User   password   email</p>
+        <% for(var i=0;i<user.length;i++){ %>
+            <li>
+               <strong><%= JSON.stringify(user[i].name)%> </strong>- <%= JSON.stringify(user[i].email) %> - <%= JSON.stringify(user[i].password) %><br>
+            </li>
+        
+        
+        <% } %>
+        </div>
+</div>
+
+<% include partials/footer %>

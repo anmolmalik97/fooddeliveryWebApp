@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon"  href="logo.png">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:400,700" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="chinese.css">
+
+    <title>Order</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a href="/home" class="navbar-brand"><img src="logo.png" height="30" width="30"><strong>FOODEZZY</strong></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+           <ul class="navbar-nav ml-auto">
+             <% if(!currentUser){ %>
+              <li class="navbar-item">
+               <a href="signup" class="nav-link"><i class="fas fa-user-plus"></i> Signup</a>
+             </li>
+              <li class="navbar-item">
+               <a href="/login" class="nav-link"><i class="fas fa-user"></i>
+
+                Login</a>
+            </li>
+             <%}else{%>
+              <li class="navbar-item">
+               <a href="#" class="nav-link"><i class="fas "></i> Welcome <%= currentUser.username %></a>
+             </li>
+             <li class="navbar-item">
+               <a class="nav-link" href="home"><i class="fas fa-home"></i> Home</a>
+             </li>
+             <li class="navbar-item">
+               <a href="/logout" class="nav-link"><i class="fas fa-user"></i> Logout</a>
+             </li>
+             <% } %>
+            
+           </ul>
+         </div>
+
+      </div>
+      
+    </nav>
+
+   <div id=head>
+       <div class="container" style="text-align: center;">
+         <img src="logo.png" height="100px" width="100px">
+         <h2 class="i">FOODEZZY</h2>
+         <h4 class="i">All The Way From china</h4>
+       </div>
+     </div>
+<div class="jumbotron">
+  <div class="container">
+  <h1 class="display-4" style="text-align: center;">HandPicked For You!!</h1>
+  <hr class="my-4">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="pasta.jpg" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">Penne Pasta with egg plant</h5>
+    <p class="card-text">penne pasta taused in white sauce with fingerlicking fried eggplants and red sauce.</p>
+    <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
+</div>
+    </div>
+     <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="burger.jpg" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">Explosive burger</h5>
+    <p class="card-text">Best burger in the town with smoked patty,served with french fries.</p>
+    <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
+</div>
+    </div>
+     <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="chickennoodle.jpg" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">Chicken noodle</h5>
+    <p class="card-text">Chicken noodle mixed with some oriental salad,one of our best oriental cuisine.</p>
+    <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
+</div>
+
+
+
+    </div>
+  </div>
+
+  <br>
+
+   <div class="row">
+    <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="pasta.jpg" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">Penne Pasta with egg plant</h5>
+    <p class="card-text">penne pasta taused in white sauce with fingerlicking fried eggplants and red sauce.</p>
+    <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
+</div>
+    </div>
+     <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="burger.jpg" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">Explosive burger</h5>
+    <p class="card-text">Best burger in the town with smoked patty,served with french fries.</p>
+    <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
+</div>
+    </div>
+     <div class="col-md-4">
+      <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="chickennoodle.jpg" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title">Chicken noodle</h5>
+    <p class="card-text">Chicken noodle mixed with some oriental salad,one of our best oriental cuisine.</p>
+    <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+
+<br>
+<br>
+ <div class="jumbotron jumbotron-fluid" style="background-color: #282C35; color: white;">
+  <div class="container">
+
+  
+<div class="last">
+ &copy; FOODEZZY 2018. All Rights Reserved.
+</div>
+
+
+
+
+    
+
+      <!-- Optional JavaScript
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

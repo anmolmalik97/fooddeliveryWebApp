@@ -1,0 +1,22 @@
+.carousel .carousel-item {
+  height: 50vh;
+}
+
+.carousel-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-height: 50vh;
+}
+.a{
+	font-family: 'Cabin', sans-serif;
+	text-shadow: 0px 4px 3px rgba(0,0,0,0.4),
+				 0px 8px 3px rgba(0,0,0,0.1),
+				 0px 18px 23px rgba(0,0,0,0.1);
+}
+body{
+	font-family: 'Cabin', sans-serif;
+}
+.grey{
+	background-color: #e9ecef;
+}
