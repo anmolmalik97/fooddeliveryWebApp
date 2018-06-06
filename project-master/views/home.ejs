@@ -61,6 +61,11 @@
       </div>
       
     </nav>
+      <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+        <% } %>
     <div id="head">
       <div class="container">
          <img src="logo.png" height="100px" width="100px">
