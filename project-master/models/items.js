@@ -11,7 +11,11 @@ var schema=new mongoose.Schema({
 	},
 	price: 0,
 	qty: 0,
-	name: String
+	name: String,
+	orderid:{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "Order"
+	}
 });
 
 module.exports=mongoose.model("items",schema)

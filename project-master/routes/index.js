@@ -6,6 +6,7 @@ var User=require("../models/user");
 var food=require("../models/food");
 var Cart=require("../models/cart");
 var items=require("../models/items");
+var order=require("../models/order");
 
 router.get("/",function(req,res){
     
@@ -108,8 +109,7 @@ router.get('/:category/addtocart/:id', function(req, res, next) {
         console.log(err);
       }
       items.findOneAndUpdate({cartid: cart._id,productid: productId},{$inc: {price: food.price, qty: 1},$set: {name: food.name}},{new: true,upsert: true},function(err,items){
-        console.log(cart);
-        console.log(items);
+       
       });
      });
 
@@ -143,24 +143,123 @@ router.get('/shopping-cart', function(req, res, next) {
 });
 
 router.get('/reduce/:id', function(req, res, next) {
-    var productId = req.params.id;
-    var cart = new Cart(req.user.cart ? req.user.cart : {});
+   
+   var productId = req.params.id;
+   var userid=req.user._id;
+   food.findById(productId,function(err,food){
+     if(err){
+      console.log(err);
+     }
+     Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:-1,totalprice: -food.price}},{new:true,upsert:true},function(err,cart){
+      if(err){
+        console.log(err);
+      }
+      items.findOneAndUpdate({cartid: cart._id,productid: productId},{$inc: {price: -food.price, qty: -1},$set: {name: food.name}},{new: true,upsert: true},function(err,item){
+        if(item.qty<1)
+           {
+          items.deleteOne({cartid: cart._id,productid: productId},function(err){
 
-    cart.reduceByOne(productId);
-    var id=req.user._id;
-    User.findByIdAndUpdate({id},{$set: {cart: cart}},{upsert: true});
-    res.redirect('/shopping-cart');
+          });
+        }
+
+
+        if(cart.totalqty<1)
+        {
+          Cart.deleteOne({userid: userid},function(err){
+
+          });
+        }
+      });
+     });
+
+   });
+   res.redirect('/shopping-cart');
+      
 });
 
 router.get('/remove/:id', function(req, res, next) {
-    var productId = req.params.id;
-    var cart = new Cart(req.user.cart ? req.user.cart : {});
+  var productId = req.params.id;
+  var userid=req.user._id;
+    Cart.findOne({userid: userid},function(err,cart){
+     if(err){
+       console.log(err);
+     }
+     items.findOne({cartid: cart._id,productid: productId},function(err,item){
+       Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:-item.qty,totalprice: -item.price}},{new:true,upsert:true},function(err,cart){});
 
-    cart.removeItem(productId);
-    var id=req.user._id;
-    User.findByIdAndUpdate({id},{$set: {cart: cart}},{upsert: true});
-    res.redirect('/shopping-cart');
+     });
+     
+         items.deleteOne({cartid: cart._id,productid: productId},function(err){ });
+          if(cart.totalqty<1)
+        {
+          Cart.deleteOne({userid: userid},function(err){
+
+          });
+        }
+
+      });
+
+  
+  res.redirect('/shopping-cart');
 });
 
 
+router.get('/checkout',function(req,res){
+  var userid=req.user.id;
+  Cart.findOne({userid: userid},function(err,cart){
+    if(err){
+      console.log(err)
+    }
+    res.render("checkout",{totalprice: cart.totalprice})
+  });
+  
+});
+
+router.post('/checkout',function(req,res){
+  var userid=req.user.id;
+  var orderid_=0;
+  Cart.findOne({userid: userid},function(err,cart){
+     if(err)
+     {
+      console.log(err)
+     }
+     console.log(cart);
+     console.log(cart._id);
+     var stripe = require("stripe")("sk_test_94rYXcFYq18J3BR389zPRPWo");
+        stripe.charges.create({
+        amount: cart.totalprice*100,
+        currency: "usd",
+        source: req.body.stripeToken, // obtained with Stripe.js
+        description: "Test Charge"
+    }, function(err, charge) {
+        if (err) {
+            req.flash('error', err.message);
+            return res.redirect('/checkout');
+        }
+        console.log("hello");
+      var Order = new order({
+      userid: req.user.id,
+      totalqty: cart.totalqty,
+      totalprice: cart.totalprice,
+      address: req.body.address,
+      paymentId: charge.id
+    });
+      Order.save(function(err,result){
+
+        orderid_=result._id;
+        console.log(orderid_)
+        items.update({cartid: cart._id},{$set: {cartid: orderid_}},{multi: true},function(err,i){
+          console.log(i);
+        });
+      });
+
+            req.flash('success', 'Successfully bought product!');
+            Cart.deleteMany({userid: userid},function(err){});
+            res.redirect('/home');
+
+      });
+    });
+
+
+        });
 module.exports=router;
