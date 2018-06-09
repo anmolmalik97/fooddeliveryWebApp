@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon"  href="logo.png">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:400,700" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="ordernow.css">
+
+    <title>profile</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a href="" class="navbar-brand"><img src="logo.png" height="30" width="30"><strong>FOODEZZY</strong></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+           <ul class="navbar-nav ml-auto">
+             <% if(!currentUser){ %>
+              <li class="navbar-item">
+               <a href="signup" class="nav-link"><i class="fas fa-user-plus"></i> Signup</a>
+             </li>
+              <li class="navbar-item">
+               <a href="/login" class="nav-link"><i class="fas fa-user"></i>
+
+                Login</a>
+            </li>
+             <%}else{%>
+              <li class="navbar-item">
+               <a href="#" class="nav-link"><i class="fas "></i> Welcome <%= currentUser.username %></a>
+             </li>
+             <li class="navbar-item">
+               <a class="nav-link" href="home"><i class="fas fa-home"></i> Home</a>
+             </li>
+             <li class="navbar-item">
+               <a href="/logout" class="nav-link"><i class="fas fa-user"></i> Logout</a>
+             </li>
+             <% } %>
+            
+           </ul>
+         </div>
+
+      </div>
+      
+    </nav>
+
+<div class="container">
+  <h3><%=currentUser.username%></h3>
+  <%if(currentUser.profileUrl && currentUser.profileUrl.length > 0){%>
+  <img src="<%=currentUser.profileUrl%>" class="img-thumbnail"  width="200px" height="200px">
+  <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+                    <label for="image">edit profile pic <br></label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+    <div class="form-group">
+                    <button class="btn btn-primary">Submit!</button>
+                </div>
+  </form>
+  <%}else{%>
+  <img src="http://2r.co.za/wp-content/uploads/2016/08/no-image-yet.png" class="img-thumbnail" width="200px" height="200px">
+  <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+                    <label for="image">Add profile pic</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+    <div class="form-group">
+                    <button class="btn btn-primary">Submit!</button>
+                </div>
+  </form>
+  <%}%>
+  <hr>
+  <%if(orders && orders.length>0){%>
+  <p>your orders</p>
+  <hr>
+  <%orders.forEach(function(o){%>
+
+    <p>order id: <b><%=o._id%> </b><br>amtpaid: <b><%=o.totalprice%></b><br>payment id: <b><%=o.paymentId%></b></p>
+    <a href= "/orders/<%=o._id%>"s >click for more details</a>
+
+    <hr>
+
+  <%})%>
+<%}else{%>
+  <h3>no order history</h3>
+  <a href="/ordernow">click here to place order</a>
+  <%}%>
+  
+</div>
+
+
+
+
+
+    
+
+      <!-- Optional JavaScript
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
