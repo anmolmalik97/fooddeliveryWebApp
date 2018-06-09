@@ -7,6 +7,78 @@ var food=require("../models/food");
 var Cart=require("../models/cart");
 var items=require("../models/items");
 var order=require("../models/order");
+require('dotenv').config();
+
+//multer and cloudinary for image uploads
+
+var multer = require('multer');
+var storage = multer.diskStorage({
+  filename: function(req, file, callback) {
+    callback(null, Date.now() + file.originalname);
+  }
+});
+var imageFilter = function (req, file, cb) {
+    // accept image files only
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+};
+var upload = multer({ storage: storage, fileFilter: imageFilter})
+
+var cloudinary = require('cloudinary');
+cloudinary.config({ 
+  cloud_name: 'dtf2jwawi', 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+
+
+// config ends
+
+//image upload route
+
+  router.post('/upload',upload.single('image'),function(req,res){
+    if(req.user.profileUrl && req.user.profileUrl.length > 0)
+    {
+      cloudinary.uploader.destroy(req.user.pId,function(error,resultu){});
+      cloudinary.uploader.upload(req.file.path, function(result) {
+     User.findByIdAndUpdate(req.user._id,{$set:{profileUrl: result.secure_url,pId: result.public_id}},{upsert: true},function(err,user){
+    if (err) 
+    {
+      req.flash('error', err.message);
+      return res.redirect('back');
+    }
+    res.redirect('profile');
+    });
+    });
+    }
+    else
+    {
+    cloudinary.uploader.upload(req.file.path, function(result) {
+    User.findByIdAndUpdate(req.user._id,{$set:{profileUrl: result.secure_url,pId: result.public_id}},{upsert: true},function(err,user){
+    if (err) 
+    {
+      req.flash('error', err.message);
+      return res.redirect('back');
+    }
+    res.redirect('profile');
+    });
+    });
+
+    }
+
+  
+});
+
+
+
+
+//
+
+
+
 
 router.get("/",function(req,res){
     
@@ -88,6 +160,7 @@ router.post("/login", passport.authenticate("local",
         failureRedirect: "/login",
         failureFlash: true
     }), function(req, res){
+  alert(req.session.oldUrl);
 });
 
 router.get("/logout", function(req, res){
@@ -109,13 +182,13 @@ router.get('/:category/addtocart/:id', function(req, res, next) {
         console.log(err);
       }
       items.findOneAndUpdate({cartid: cart._id,productid: productId},{$inc: {price: food.price, qty: 1},$set: {name: food.name}},{new: true,upsert: true},function(err,items){
-       
+       res.redirect('/'+category);
       });
      });
 
 
     });
-    res.redirect('/'+category);
+    
 });
 
 
@@ -160,20 +233,22 @@ router.get('/reduce/:id', function(req, res, next) {
           items.deleteOne({cartid: cart._id,productid: productId},function(err){
 
           });
-        }
-
-
-        if(cart.totalqty<1)
+          if(cart.totalqty<1)
         {
           Cart.deleteOne({userid: userid},function(err){
 
           });
         }
+          res.redirect('/shopping-cart');
+        }
+
+
+        
+
       });
      });
 
    });
-   res.redirect('/shopping-cart');
       
 });
 
@@ -185,22 +260,27 @@ router.get('/remove/:id', function(req, res, next) {
        console.log(err);
      }
      items.findOne({cartid: cart._id,productid: productId},function(err,item){
-       Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:-item.qty,totalprice: -item.price}},{new:true,upsert:true},function(err,cart){});
-
-     });
-     
-         items.deleteOne({cartid: cart._id,productid: productId},function(err){ });
+       Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:-item.qty,totalprice: -item.price}},{new:true,upsert:true},function(err,cart){
+        items.deleteOne({cartid: cart._id,productid: productId},function(err){ 
           if(cart.totalqty<1)
         {
           Cart.deleteOne({userid: userid},function(err){
 
           });
         }
+         res.redirect('/shopping-cart');
 
       });
+       });
+        
+      });
+        
+     });
+     
+        
 
   
-  res.redirect('/shopping-cart');
+ 
 });
 
 
@@ -225,7 +305,7 @@ router.post('/checkout',function(req,res){
      }
      console.log(cart);
      console.log(cart._id);
-     var stripe = require("stripe")("sk_test_94rYXcFYq18J3BR389zPRPWo");
+     var stripe = require("stripe")(process.env.STRIPE_API_SECRET);
         stripe.charges.create({
         amount: cart.totalprice*100,
         currency: "usd",
@@ -250,16 +330,43 @@ router.post('/checkout',function(req,res){
         console.log(orderid_)
         items.update({cartid: cart._id},{$set: {cartid: orderid_}},{multi: true},function(err,i){
           console.log(i);
-        });
-      });
 
             req.flash('success', 'Successfully bought product!');
-            Cart.deleteMany({userid: userid},function(err){});
-            res.redirect('/home');
+            Cart.deleteMany({userid: userid},function(err){
+              res.redirect('/home');
+            });
+            
+
+        });
+      });
 
       });
     });
 
 
         });
+
+//profile logic
+
+router.get('/profile',middleware.isLoggedIn,function(req,res){
+  order.find({userid: req.user._id},function(err,orders){
+
+         res.render('profile',{currentUser: req.user,orders: orders});
+      }); 
+  });
+
+
+
+router.get('/orders/:id',function(req,res){
+  items.find({cartid: req.params.id},function(err,items){
+    res.render('order',{items: items})
+  });
+});
+
+
+
+
+
+
+
 module.exports=router;
