@@ -9,6 +9,7 @@
   "author": "anmol,asheeque",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.6.1",
     "body-parser": "^1.18.3",
     "cloudinary": "^1.11.0",
     "connect-flash": "^0.1.1",

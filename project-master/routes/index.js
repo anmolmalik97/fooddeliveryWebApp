@@ -7,7 +7,11 @@ var food=require("../models/food");
 var Cart=require("../models/cart");
 var items=require("../models/items");
 var order=require("../models/order");
+var check=require("../models/check");
+var async= require("async");
+
 require('dotenv').config();
+
 
 //multer and cloudinary for image uploads
 
@@ -76,6 +80,11 @@ cloudinary.config({
 
 
 //
+//password reset logic
+
+router.get("/forgot",function(req,res){
+  res.render('forgot');
+})
 
 
 
@@ -86,7 +95,12 @@ router.get("/",function(req,res){
 });
 
 router.get("/home",function(req,res){
-    
+  if(req.user){
+    if(req.user.isAdmin)
+    {
+      res.redirect('/admin')
+    }
+  }
    res.render("home",{currentUser:req.user}); 
 });
 
@@ -150,17 +164,21 @@ router.post("/signup", function(req, res){
            res.redirect("/home"); 
         });
     });
-});
+})
 
 
 // handling login logic
 router.post("/login", passport.authenticate("local", 
     {
-        successRedirect: "/ordernow",
         failureRedirect: "/login",
         failureFlash: true
     }), function(req, res){
-  alert(req.session.oldUrl);
+  if (req.user.isAdmin) {
+      res.redirect('/admin');
+    }
+    else{
+      res.redirect('/ordernow');
+    }
 });
 
 router.get("/logout", function(req, res){
@@ -361,6 +379,38 @@ router.get('/orders/:id',function(req,res){
   items.find({cartid: req.params.id},function(err,items){
     res.render('order',{items: items})
   });
+});
+
+
+//admin logic
+
+router.get('/admin',function(req,res){
+User.count({isAdmin: {$ne: true}},function(err,ucount){
+  order.count({},function(err,ocount){
+    order.aggregate([
+   {$match: {}},
+   {$group: {_id: null,total: {$sum: "$totalprice"}}}
+ ],function(err,total){
+   if(total.length>0){
+    res.render("admin",{ucount: ucount, ocount: ocount, currentUser: req.user,total: total.total})
+   }
+   else{
+    res.render("admin",{ucount: ucount, ocount: ocount, currentUser: req.user,total: 0})
+   }
+   
+ })
+  });
+});
+  });
+  
+router.get('/check',function(req,res){
+ check.aggregate([
+   {$match: {}},
+   {$group: {_id: null,total: {$sum: "$value"}}}
+ ],function(err,total){
+   console.log(total)
+ })
+
 });
 
 
