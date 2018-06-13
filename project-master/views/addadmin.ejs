@@ -88,7 +88,7 @@
                             <ul aria-expanded="false" class="collapse">
                                 <li><a href="/additem">add new item</a></li>
                                 <li><a href="/discontinue">discontinue item</a></li>
-                                <li><a href="/discontinue">edit item</a></li>
+                                <li><a href="/edit">edit item</a></li>
                             </ul>
                         </li>
                         <li> <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-plus-square"></i><span class="hide-menu">admin add/remove</span></a>
@@ -117,59 +117,29 @@
                 <div class="col-md-5 align-self-center">
                     <h3 class="text-primary">Dashboard</h3> </div>
             </div>
+
+            <div class="container" style="text-align: center;">
+        
+        <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% } %>
+        <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+        <% } %>
+    </div>
             <!-- End Bread crumb -->
             <!-- Container fluid  -->
-            <div class="container-fluid">
-                <!-- Start Page Content -->
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card p-30">
-                            <div class="media">
-                                <div class="media-left meida media-middle">
-                                    <span><i class="fa fa-usd f-s-40 color-primary"></i></span>
-                                </div>
-                                <div class="media-body media-text-right">
-                                    <h2><%=total%></h2>
-                                    <p class="m-b-0">Total Revenue</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card p-30">
-                            <div class="media">
-                                <div class="media-left meida media-middle">
-                                    <span><i class="fa fa-shopping-cart f-s-40 color-success"></i></span>
-                                </div>
-                                <div class="media-body media-text-right">
-                                    <h2><%=ocount%></h2>
-                                    <p class="m-b-0">Sales</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card p-30">
-                            <div class="media">
-                                <div class="media-left meida media-middle">
-                                    <span><i class="fa fa-user f-s-40 color-danger"></i></span>
-                                </div>
-                                <div class="media-body media-text-right">
-                                    <h2><%=ucount%></h2>
-                                    <p class="m-b-0">Customer</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                
+              
                 <div class="row">
         
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-title">
-                                <h4>pending orders</h4>
+                                <h4>Admin list</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -178,59 +148,73 @@
                                             <tr>
                                                 <th>#</th>
                                                 <th>Name</th>
-                                                <th>Product</th>
-                                                <th>quantity</th>
+                                                <th>role</th>
                                                 <th>action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                             <%users.forEach(function(u){%>
+                                             <%if(u.isAdmin){%>
+
 
                                             <tr>
                                                 <td>
                                                     <div class="round-img">
-                                                        <a href=""><img src="images/avatar/4.jpg" alt=""></a>
+                                                        <a href=""><img src="<%=u.profileUrl%>" alt=""></a>
                                                     </div>
                                                 </td>
-                                                <td>John Abraham</td>
-                                                <td><span>iBook</span></td>
-                                                <td><span>456 pcs</span></td>
-                                                <td><form action="/orders/" method="post"><button class="btn btn-primary" type="submit">submit</button></form></td>
+                                                <td><span><%=u.username%></span></td>
+                                                <td><span>admin</span></td>
+                                                <td><form action="/discontinueadmin" method="post"><input type="hidden" name="name" value="<%=u.username%>"><button class="btn btn-danger" type="submit" <%if(u.isSuperadmin === true || u.username === currentUser.username){%> disabled <%}%> > <%if(u.isSuperadmin ===true || u.username === currentUser.username){%> <strike> remove admin</strike> <%}else{%>remove admin<%}%></button></form></td>
                                             </tr>
+                                              <%}%>
+                                              <%})%>
+                                        </tbody>     
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+           
+                  <div class="row">
+        
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-title">
+                                <h4>user list</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Name</th>
+                                                <th>role</th>
+                                                <th>action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                             <%users.forEach(function(u){%>
+                                             <%if(!u.isAdmin){%>
+
                                             <tr>
                                                 <td>
                                                     <div class="round-img">
-                                                        <a href=""><img src="images/avatar/2.jpg" alt=""></a>
+                                                        <a href=""><img src="<%=u.profileUrl%>" alt=""></a>
                                                     </div>
                                                 </td>
-                                                <td>John Abraham</td>
-                                                <td><span>iPhone</span></td>
-                                                <td><span>456 pcs</span></td>
-                                                <td><form action="/orders" method="post"><button class="btn btn-primary" type="submit">submit</button></form></td>
+                                                <td><span><%=u.username%></span></td>
+                                                <td><span>user</span></td>
+                                                <td><form action="/addadmin" method="post"><input type="hidden" name="name" value="<%=u.username%>"><button class="btn btn-success" type="submit" <%if(u.isSuperAdmin === true || u.username === currentUser.username){%>disabled <%}%> > make admin</button></form></td>
                                             </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="round-img">
-                                                        <a href=""><img src="images/avatar/3.jpg" alt=""></a>
-                                                    </div>
-                                                </td>
-                                                <td>John Abraham</td>
-                                                <td><span>iMac</span></td>
-                                                <td><span>456 pcs</span></td>
-                                                <td><form action="/orders" method="post"><button class="btn btn-primary" type="submit">submit</button></form></td>
-                                        
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="round-img">
-                                                        <a href=""><img src="images/avatar/4.jpg" alt=""></a>
-                                                    </div>
-                                                </td>
-                                                <td>John Abraham</td>
-                                                <td><span>iBook</span></td>
-                                                <td><span>456 pcs</span></td>
-                                                <td><form action="/orders/" method="post"><button class="btn btn-primary" type="submit">submit</button></form></td>
-                                            </tr>
-                                        </tbody>
+
+
+                                        <%}%>
+                                        <%})%>   
+                                        </tbody>     
                                     </table>
                                 </div>
                             </div>
@@ -238,7 +222,7 @@
                     </div>
                 </div>
 
-
+ 
                 <!-- End PAge Content -->
             </div>
             <!-- End Container fluid  -->
