@@ -7,6 +7,7 @@ var UserSchema = new mongoose.Schema({
     password: String, 
     profileUrl: String,
     isAdmin: {type: Boolean,default: false},
+    isSuperadmin: {type:Boolean,default: false},
     pId: String,
 });
 

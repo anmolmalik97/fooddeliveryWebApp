@@ -7,7 +7,6 @@ var food=require("../models/food");
 var Cart=require("../models/cart");
 var items=require("../models/items");
 var order=require("../models/order");
-var check=require("../models/check");
 var async= require("async");
 
 require('dotenv').config();
@@ -153,7 +152,7 @@ router.get("/south",function(req,res){
   
 //handle sign up logic
 router.post("/signup", function(req, res){
-    var newUser = new User({username: req.body.username,email:req.body.email});
+    var newUser = new User({username: req.body.username,email:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
     User.register(newUser, req.body.password, function(err, user){
         if(err){
           console.log(err);
@@ -284,9 +283,9 @@ router.get('/remove/:id', function(req, res, next) {
         {
           Cart.deleteOne({userid: userid},function(err){
 
-          });
-        }
-         res.redirect('/shopping-cart');
+          });}
+
+                 res.redirect('/shopping-cart');
 
       });
        });
@@ -365,6 +364,7 @@ router.post('/checkout',function(req,res){
         });
 
 //profile logic
+//-----------------------------------------------------------------------
 
 router.get('/profile',middleware.isLoggedIn,function(req,res){
   order.find({userid: req.user._id},function(err,orders){
@@ -383,16 +383,21 @@ router.get('/orders/:id',function(req,res){
 
 
 //admin logic
+//--------------------------------------------------------------------------------------------
 
 router.get('/admin',function(req,res){
-User.count({isAdmin: {$ne: true}},function(err,ucount){
+  if(req.user && req.user.isAdmin)
+  {
+    if(req.user.isAdmin)
+    User.count({isAdmin: {$ne: true}},function(err,ucount){
   order.count({},function(err,ocount){
     order.aggregate([
    {$match: {}},
    {$group: {_id: null,total: {$sum: "$totalprice"}}}
  ],function(err,total){
    if(total.length>0){
-    res.render("admin",{ucount: ucount, ocount: ocount, currentUser: req.user,total: total.total})
+    console.log(total)
+    res.render("admin",{ucount: ucount, ocount: ocount, currentUser: req.user,total: total[0].total})
    }
    else{
     res.render("admin",{ucount: ucount, ocount: ocount, currentUser: req.user,total: 0})
@@ -401,21 +406,183 @@ User.count({isAdmin: {$ne: true}},function(err,ucount){
  })
   });
 });
-  });
-  
-router.get('/check',function(req,res){
- check.aggregate([
-   {$match: {}},
-   {$group: {_id: null,total: {$sum: "$value"}}}
- ],function(err,total){
-   console.log(total)
- })
 
+  }
+  
+  else{
+    req.flash("error","permission denied")
+    res.redirect("/home")
+  }
+
+  });
+
+//edit add items logic  
+//-------------------------------------------------------------------------------------------
+router.get("/additem",function(req,res){
+  if(req.user && req.user.isAdmin){
+    res.render("additems");
+  }
+  else{
+    req.flash("error","permission denied!");
+    res.redirect("/home");
+  }
+  
 });
 
+router.post("/additem",upload.single('image'),function(req,res){
+cloudinary.uploader.upload(req.file.path, function(result) {
+    console.log(result);
+    var Food= new food({name: req.body.name,category: req.body.category,price: req.body.price, image: result.secure_url, description: req.body.description,pId: result.public_id})
+    Food.save(function(err,food){
+      console.log(food);
+      req.flash('success','product added Successfully');
+      res.redirect("/additem")
+    });  
+  });
+    
+});
 
+router.get("/discontinue",function(req,res){
+  if(req.user && req.user.isAdmin)
+  {
+   res.render("discontinue"); 
+  }
+  else{
+    req.flash("error","permission denied");
+    res.redirect("/home");
+  }
+  
+});
 
+router.post("/discontinue",function(req,res){
+  food.findOne({name: req.body.name},function(err,result){
+    if(result)
+    {
+      cloudinary.uploader.destroy(result.pId,function(error,a){});
+      food.deleteOne({name: req.body.name},function(err){
+        req.flash("success","item discontinued");
+        res.redirect("discontinue")
+      });
+    }
+    else{
+      req.flash("error","no such items!!")
+      res.redirect("discontinue");
 
+    }
+    
+  });
+});
+
+router.get("/edit",function(req,res){
+  if(req.user && req.user.isAdmin)
+  {
+    res.render("edit");
+  }
+  else{
+    req.flash("error","permission denied");
+    res.redirect("/home");
+  }
+  
+})
+router.get("/edit1",function(req,res){
+  if(req.user && req.user.isAdmin){
+    res.render("edit1");
+  }
+  else{
+    req.flash("error","permission denied");
+    res.redirect("/home");
+  }
+  
+});
+router.post("/edit",function(req,res){
+  food.findOne({name: req.body.name},function(err,result){
+    if(result)
+    {
+      res.render("edit1",{food: result})
+
+    }else{
+      req.flash('error','no such item!!');
+      res.redirect('edit');
+    }
+  });
+});
+
+router.post('/edit1',upload.single('image'),function(req,res){
+  if(req.file)
+  {
+    cloudinary.uploader.destroy(req.body.pId,function(error,resultu){});
+    cloudinary.uploader.upload(req.file.path, function(result) {
+      food.findByIdAndUpdate(req.body.id,{$set:{name: req.body.name,price: req.body.price,category: req.body.category,description: req.body.description,pId: result.public_id,image: result.secure_url}},{upsert: true},function(err,food){
+        if (err) 
+        {
+          req.flash('error', err.message);
+          return res.redirect('back');
+        }
+        req.flash('success','item edited Successfully');
+        res.redirect('edit');
+    });
+    });
+
+  }
+  else{
+     food.findByIdAndUpdate(req.body.id,{$set:{name: req.body.name,price: req.body.price,category: req.body.category,description: req.body.description}},{upsert: true},function(err,food){
+        req.flash('success','item edited Successfully');
+        res.redirect("edit");
+      });
+      }
+
+  });
+ 
+//admin add remove logic
+//--------------------------------------------------------------------------------------------
+
+router.get("/addadmin",function(req,res){
+  if(req.user && req.user.isAdmin){
+    User.find({},function(err,result){
+    res.render("addadmin",{users: result,currentUser: req.user});
+  })
+
+  }else{
+    req.flash("error","permission denied");
+    res.redirect("/home");
+  }
+  
+  
+})
+
+router.post("/addadmin",function(req,res){
+  console.log(req.body.name);
+  User.findOne({username: req.body.name},function(err,result){
+    if(result){
+      if(result.isAdmin === true){
+        req.flash('success','already a admin');
+        res.redirect('/addadmin');
+      }
+      else{
+            User.findOneAndUpdate({username: req.body.name},{$set:{isAdmin: true}},{upsert: true},function(err,user){
+              req.flash('success','admin added Successfully!!');
+              res.redirect("/addadmin");
+
+            });
+            
+          }
+    }
+    else{
+      req.flash('error','no such user exist');
+      res.redirect("/addadmin");
+    }
+  });
+});
+
+router.post("/discontinueadmin",function(req,res){
+  User.findOneAndUpdate({username: req.body.name},{$set: {isAdmin: false}},function(err,result){
+    req.flash("success","admin removed Successfully")
+    res.redirect("/addadmin")
+  });
+});
+
+//----------------------------------------------------------------------------------------------------------------------------
+//promo and discount logic
 
 
 

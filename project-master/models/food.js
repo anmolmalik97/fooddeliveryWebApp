@@ -5,7 +5,8 @@ var foodschema=new mongoose.Schema({
 	category: String,
 	price: Number,
 	image: String,
-	description: String
+	description: String,
+	pId: String
 });
 
 module.exports=mongoose.model("food",foodschema);

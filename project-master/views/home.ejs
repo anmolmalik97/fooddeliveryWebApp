@@ -59,12 +59,18 @@
 
       </div>
       
-    </nav>
-      <% if(success && success.length > 0){ %>
+    </nav>        
+        <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+        <% } %>
+        <% if(success && success.length > 0){ %>
             <div class="alert alert-success" role="alert">
                 <%= success %>
             </div>
         <% } %>
+    </div>
     <div id="head">
       <div class="container">
          <img src="logo.png" height="100px" width="100px">
