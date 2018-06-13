@@ -8,7 +8,9 @@ var Cart=require("../models/cart");
 var items=require("../models/items");
 var order=require("../models/order");
 var async= require("async");
-
+var bcrypt=require("bcrypt-nodejs");
+var nodemailer=require("nodemailer");
+var crypto=require("crypto");
 require('dotenv').config();
 
 
@@ -78,14 +80,109 @@ cloudinary.config({
 
 
 
-//
+//--------------------------------------------------------------------------------------------------------------------
 //password reset logic
 
 router.get("/forgot",function(req,res){
   res.render('forgot');
 })
 
+router.post("/forgot",function(req,res){
+  User.find({username: req.body.name},function(err,user){
+    if(user){
+      async.waterfall([
+                  function(done){
+                    crypto.randomBytes(20,function(err,buf){
+                      var token = buf.toString('hex');
+                      done(err,token);
+                    });
+                  },
+                  function(token,done){
+                    User.findOneAndUpdate({username: req.body.name},{$set: {resetToken: token,resetExpires: Date.now() + 3600000}},{upsert: true},function(err,user1){
+                      //nothing to do here 
+                      done(err,user1,token);
+                    });
+                    
+                  },
+                  function(user1,token,done){
+                    var smtpTransport = nodemailer.createTransport({
+                      service: 'gmail',
+                       auth: {
+                            user: process.env.USER_NAME,
+                            pass: process.env.PASSWORD
+                              }
+                    });
+                    var mailOptions = {
+                      to: user1.email,
+                      from: 'support@foodezzy.com',
+                      subject: "password reset",
+                      text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                            'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                            'If you did not request this, please ignore this email and your password will remain unchanged.\n'
 
+                    };
+                    smtpTransport.sendMail(mailOptions, function(err) {
+                      if(err) console.log(err);
+                    req.flash('success', 'An e-mail has been sent to ' + user1.email + ' with further instructions.');
+                    done(err, 'done');
+                    });
+
+                  }
+                ],function(err){
+                  res.redirect('/home');
+                })
+                
+    }
+    else{
+      req.flash("error","no such user found");
+      res.redirect("/forgot");
+    }
+  });
+});
+
+
+router.get("/reset/:token",function(req,res){
+   User.findOne({ resetToken: req.params.token, resetExpires: { $gt: Date.now() } }, function(err, user) {
+    if (!user) {
+      req.flash('error', 'Password reset token is invalid or has expired.');
+      return res.redirect('/forgot');
+    }
+    res.render('passwordreset', {token: req.params.token});
+  });
+});
+
+
+router.post("/reset/:token",function(req,res){
+  if(req.body.password === req.body.confirmpassword){
+    User.findOneAndUpdate({resetToken: req.params.token,resetExpires: {$gt: Date.now()}},{$set: {resetExpires: undefined,resetToken: undefined}},{upsert:true},function(err,user){
+    if(user){
+      user.setPassword(req.body.password,function(err){
+        if(err) 
+          {console.log(err);}
+        user.save(function(err){
+           req.flash("success","password changed successfully");
+        res.redirect("/login");
+
+        })
+       
+      });
+    };
+    });
+  }
+
+
+else{
+    req.flash("error","password not same");
+    res.redirect("/reset");
+  }
+  
+});
+
+
+
+// normal routes
+// --------------------------------------------------------------------------------------------------------------------
 
 
 router.get("/",function(req,res){
@@ -121,7 +218,7 @@ router.get("/login",function(req,res){
    res.render("login"); 
 });
 
-router.get("/north",function(req,res){
+router.get("/north",middleware.isLoggedIn,function(req,res){
 
   Cart.findOne({userid: req.user._id},function(err,cart){  
    food.find({}, function(err, food){
@@ -135,43 +232,134 @@ router.get("/north",function(req,res){
 });
 
 
-router.get("/south",function(req,res){
+router.get("/south",middleware.isLoggedIn,function(req,res){
     
    res.render("south"); 
 });
   
-  router.get("/chinese",function(req,res){
+  router.get("/chinese",middleware.isLoggedIn,function(req,res){
     
    res.render("chinese"); 
 });
   
-  router.get("/shakes",function(req,res){
+  router.get("/shakes",middleware.isLoggedIn,function(req,res){
     
    res.render("shakes"); 
 });
   
 //handle sign up logic
 router.post("/signup", function(req, res){
-    var newUser = new User({username: req.body.username,email:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
-    User.register(newUser, req.body.password, function(err, user){
-        if(err){
-          console.log(err);
-            req.flash("error",err.message);
-            res.redirect("/signup");
-        }
-        passport.authenticate("local")(req, res, function(){
-           res.redirect("/home"); 
-        });
+  if(!(req.body.password == req.body.confirmpassword)){
+    req.flash("error","passwords are not same");
+    res.redirect("/signup");
+  }
+  else{
+    
+     var newUser = new User({username: req.body.username,email:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
+
+     //User.register(newUser, req.body.password, function(err, user){
+         // if(err){
+            // console.log(err);
+              User.find({username: newUser.username},function(err,user){
+               if(user.length>0){
+                  req.flash("error","user with this id already exist")
+                 res.redirect("/signup");
+               }
+               else{
+                async.waterfall([
+                  function(done){
+                      User.register(newUser, req.body.password, function(err, user){
+                      done(err,user);
+                    });
+                  },
+                  function(user,done){
+                    crypto.randomBytes(20,function(err,buf){
+                      var token = buf.toString('hex');
+                      done(err,token,user);
+                    });
+                  },
+                  function(token,user,done){
+                    User.findOneAndUpdate({username: user.username},{$set: {verifyToken: token,verifyExpires: Date.now() + 3600000}},{upsert: true},function(err,user1){
+                      //nothing to do here 
+                      done(err,user1,token,user);
+                    });
+                    
+                  },
+                  function(user1,token,user,done){
+                    var smtpTransport = nodemailer.createTransport({
+                      service: 'gmail',
+                       auth: {
+                            user: process.env.USER_NAME,
+                            pass: process.env.PASSWORD
+                              }
+                    });
+                    var mailOptions = {
+                      to: user1.email,
+                      from: 'support@foodezzy.com',
+                      subject: "account verification",
+                      text: 'You are receiving this in order to verify your email address\n\n' +
+                            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                            'http://' + req.headers.host + '/verify/' + token + '\n\n' +
+                            'If you did not request this, please ignore this email and your email will not be used.\n'
+
+                    };
+                    smtpTransport.sendMail(mailOptions, function(err) {
+                    req.flash('success', 'An e-mail has been sent to ' + user1.email + ' with further instructions.');
+                    done(err, 'done');
+                    });
+
+                  }
+                ],function(err){
+                  res.redirect('/home');
+                })
+                
+                }
+      
+             });
+
+             // req.flash("error",err.message);
+             // res.redirect("/signup");
+         // }
+         //passport.authenticate("local")(req, res, function(){
+         
+         //});
+     // });
+  }
+  
+});
+
+router.get("/verify/:token",function(req,res){
+  User.findOneAndUpdate({verifyToken: req.params.token,verifyExpires: {$gt: Date.now()}},{$set: {isVerified:true,verifyToken: undefined,verifyExpires: undefined}},function(err,user){
+    if(user){
+        req.flash("success","email verified Successfully...login to continue");
+        res.redirect("/login");
+       
+
+    }
+    else{
+      User.deleteOne({verifyToken: req.params.token},function(err){
+      req.flash("error","invalid link");
+      res.redirect("/home");
     });
-})
+     
+    }
+
+      
+  });
+});
 
 
 // handling login logic
-router.post("/login", passport.authenticate("local", 
+router.post("/login",passport.authenticate("local", 
     {
         failureRedirect: "/login",
         failureFlash: true
-    }), function(req, res){
+    }),function(req, res){
+  if(!req.user.isVerified){
+    req.logout();
+    req.flash("error","email verification required for login");
+    res.redirect("/login");
+  }
   if (req.user.isAdmin) {
       res.redirect('/admin');
     }
@@ -186,7 +374,7 @@ router.get("/logout", function(req, res){
 });
 // cart logic
 
-router.get('/:category/addtocart/:id', function(req, res, next) {
+router.get('/:category/addtocart/:id', middleware.isLoggedIn,function(req, res, next) {
     var productId = req.params.id;
     var category=req.params.category;
     var userid=req.user._id;
@@ -209,7 +397,7 @@ router.get('/:category/addtocart/:id', function(req, res, next) {
 });
 
 
-router.get('/shopping-cart', function(req, res, next) {
+router.get('/shopping-cart',middleware.isLoggedIn, function(req, res, next) {
 
     Cart.findOne({userid: req.user._id},function(err,cart){
       if(!cart)
@@ -232,7 +420,7 @@ router.get('/shopping-cart', function(req, res, next) {
    
 });
 
-router.get('/reduce/:id', function(req, res, next) {
+router.get('/reduce/:id',middleware.isLoggedIn, function(req, res, next) {
    
    var productId = req.params.id;
    var userid=req.user._id;
@@ -269,7 +457,7 @@ router.get('/reduce/:id', function(req, res, next) {
       
 });
 
-router.get('/remove/:id', function(req, res, next) {
+router.get('/remove/:id',middleware.isLoggedIn, function(req, res, next) {
   var productId = req.params.id;
   var userid=req.user._id;
     Cart.findOne({userid: userid},function(err,cart){
@@ -301,7 +489,7 @@ router.get('/remove/:id', function(req, res, next) {
 });
 
 
-router.get('/checkout',function(req,res){
+router.get('/checkout',middleware.isLoggedIn,function(req,res){
   var userid=req.user.id;
   Cart.findOne({userid: userid},function(err,cart){
     if(err){
@@ -375,7 +563,7 @@ router.get('/profile',middleware.isLoggedIn,function(req,res){
 
 
 
-router.get('/orders/:id',function(req,res){
+router.get('/orders/:id',middleware.isLoggedIn,function(req,res){
   items.find({cartid: req.params.id},function(err,items){
     res.render('order',{items: items})
   });
@@ -385,7 +573,7 @@ router.get('/orders/:id',function(req,res){
 //admin logic
 //--------------------------------------------------------------------------------------------
 
-router.get('/admin',function(req,res){
+router.get('/admin',middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin)
   {
     if(req.user.isAdmin)
@@ -418,7 +606,7 @@ router.get('/admin',function(req,res){
 
 //edit add items logic  
 //-------------------------------------------------------------------------------------------
-router.get("/additem",function(req,res){
+router.get("/additem",middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin){
     res.render("additems");
   }
@@ -442,7 +630,7 @@ cloudinary.uploader.upload(req.file.path, function(result) {
     
 });
 
-router.get("/discontinue",function(req,res){
+router.get("/discontinue",middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin)
   {
    res.render("discontinue"); 
@@ -473,7 +661,7 @@ router.post("/discontinue",function(req,res){
   });
 });
 
-router.get("/edit",function(req,res){
+router.get("/edit",middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin)
   {
     res.render("edit");
@@ -484,7 +672,7 @@ router.get("/edit",function(req,res){
   }
   
 })
-router.get("/edit1",function(req,res){
+router.get("/edit1",middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin){
     res.render("edit1");
   }
@@ -536,7 +724,7 @@ router.post('/edit1',upload.single('image'),function(req,res){
 //admin add remove logic
 //--------------------------------------------------------------------------------------------
 
-router.get("/addadmin",function(req,res){
+router.get("/addadmin",middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin){
     User.find({},function(err,result){
     res.render("addadmin",{users: result,currentUser: req.user});
@@ -584,6 +772,15 @@ router.post("/discontinueadmin",function(req,res){
 //----------------------------------------------------------------------------------------------------------------------------
 //promo and discount logic
 
+router.get("/adddiscounts",middleware.isLoggedIn,function(req,res){
+  if(req.user && req.user.isAdmin){
+    res.render('discount');
+  }
+  else{
+    req.flash("error","permission denied");
+    res.redirect("/home");
+  }
+})
 
 
 module.exports=router;

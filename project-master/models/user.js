@@ -9,6 +9,11 @@ var UserSchema = new mongoose.Schema({
     isAdmin: {type: Boolean,default: false},
     isSuperadmin: {type:Boolean,default: false},
     pId: String,
+    resetToken: String,
+    resetExpires: Date,
+    verifyToken: String,
+    verifyExpires: Date,
+    isVerified: {type:Boolean,default:false},
 });
 
 UserSchema.plugin(passportLocalMongoose)
