@@ -6,6 +6,8 @@ var User=require("../models/user");
 var food=require("../models/food");
 var Cart=require("../models/cart");
 var items=require("../models/items");
+var discounts=require("../models/discount");
+var coupon=require("../models/coupon");
 var order=require("../models/order");
 var async= require("async");
 var bcrypt=require("bcrypt-nodejs");
@@ -13,6 +15,30 @@ var nodemailer=require("nodemailer");
 var crypto=require("crypto");
 require('dotenv').config();
 
+// ----------------------------------------functions------------------------------------
+var reset=function resetcoupon(req,res,next){
+  if(req.user){
+    console.log("i am here");
+     Cart.find({userid: req.user._id},function(err,cart){
+      if(cart){
+        Cart.findOneAndUpdate({userid: req.user._id},{$set: {discount: null,dtotalprice: undefined}},function(err,c){
+          next();
+        });
+      }
+      else
+        {
+          next();
+        }
+
+  });
+  }
+  else{
+    next();
+  }
+  
+ 
+}
+// ---------------------------------------------------------------------------------------------
 
 //multer and cloudinary for image uploads
 
@@ -83,7 +109,11 @@ cloudinary.config({
 //--------------------------------------------------------------------------------------------------------------------
 //password reset logic
 
-router.get("/forgot",function(req,res){
+router.get("/forgot",reset,function(req,res){
+  if(req.user){
+    req.flash("error","already logged in");
+    return res.redirect("/home");
+  }
   res.render('forgot');
 })
 
@@ -142,7 +172,7 @@ router.post("/forgot",function(req,res){
 });
 
 
-router.get("/reset/:token",function(req,res){
+router.get("/reset/:token",reset,function(req,res){
    User.findOne({ resetToken: req.params.token, resetExpires: { $gt: Date.now() } }, function(err, user) {
     if (!user) {
       req.flash('error', 'Password reset token is invalid or has expired.');
@@ -185,12 +215,11 @@ else{
 // --------------------------------------------------------------------------------------------------------------------
 
 
-router.get("/",function(req,res){
-    
+router.get("/",reset,function(req,res){ 
    res.render("landingpage"); 
 });
 
-router.get("/home",function(req,res){
+router.get("/home",reset,function(req,res){
   if(req.user){
     if(req.user.isAdmin)
     {
@@ -200,7 +229,7 @@ router.get("/home",function(req,res){
    res.render("home",{currentUser:req.user}); 
 });
 
-router.get("/ordernow",middleware.isLoggedIn,function(req,res){
+router.get("/ordernow",middleware.isLoggedIn,reset,function(req,res){
  res.render("ordernow",{currentUser:req.user});
  console.log(req.user);
 
@@ -208,17 +237,23 @@ router.get("/ordernow",middleware.isLoggedIn,function(req,res){
 });
 
 // show register form
-router.get("/signup",function(req,res){
-    
+router.get("/signup",reset,function(req,res){
+    if(req.user){
+      req.flash("error","cant signup already login")
+      return res.redirect("back");
+    }
    res.render("signup"); 
 });
 
-router.get("/login",function(req,res){
-    
+router.get("/login",reset,function(req,res){
+    if(req.user){
+      req.flash("error","cant login already logged in")
+      return res.redirect("back");
+    }
    res.render("login"); 
 });
 
-router.get("/north",middleware.isLoggedIn,function(req,res){
+router.get("/north",reset,middleware.isLoggedIn,function(req,res){
 
   Cart.findOne({userid: req.user._id},function(err,cart){  
    food.find({}, function(err, food){
@@ -232,17 +267,17 @@ router.get("/north",middleware.isLoggedIn,function(req,res){
 });
 
 
-router.get("/south",middleware.isLoggedIn,function(req,res){
+router.get("/south",middleware.isLoggedIn,reset,function(req,res){
     
    res.render("south"); 
 });
   
-  router.get("/chinese",middleware.isLoggedIn,function(req,res){
+  router.get("/chinese",middleware.isLoggedIn,reset,function(req,res){
     
    res.render("chinese"); 
 });
   
-  router.get("/shakes",middleware.isLoggedIn,function(req,res){
+  router.get("/shakes",middleware.isLoggedIn,reset,function(req,res){
     
    res.render("shakes"); 
 });
@@ -387,8 +422,12 @@ router.get('/:category/addtocart/:id', middleware.isLoggedIn,function(req, res, 
         console.log(err);
       }
       items.findOneAndUpdate({cartid: cart._id,productid: productId},{$inc: {price: food.price, qty: 1},$set: {name: food.name}},{new: true,upsert: true},function(err,items){
-       res.redirect('/'+category);
+        Cart.findOneAndUpdate({userid: userid},{$addToSet: {items: items._id}},{upsert: false},function(err,cartss){
+          res.redirect('/'+category);
       });
+        })  
+
+       
      });
 
 
@@ -402,15 +441,15 @@ router.get('/shopping-cart',middleware.isLoggedIn, function(req, res, next) {
     Cart.findOne({userid: req.user._id},function(err,cart){
       if(!cart)
       {
-        res.render("shoppingcart",{cart: cart,items: null});
+        return res.render("shoppingcart",{cart: cart,items: null});
       }
       else{
         items.find({cartid: cart._id},function(err,items){
           if(items.length<0){
-            res.render("shoppingcart",{cart: cart,items: null});
+            return res.render("shoppingcart",{cart: cart,items: null});
           }
           else{
-            res.render("shoppingcart",{cart: cart,items: items})
+            return res.render("shoppingcart",{cart: cart,items: items})
           }
         })
 
@@ -433,23 +472,29 @@ router.get('/reduce/:id',middleware.isLoggedIn, function(req, res, next) {
         console.log(err);
       }
       items.findOneAndUpdate({cartid: cart._id,productid: productId},{$inc: {price: -food.price, qty: -1},$set: {name: food.name}},{new: true,upsert: true},function(err,item){
+         
         if(item.qty<1)
            {
-          items.deleteOne({cartid: cart._id,productid: productId},function(err){
+            Cart.findOneAndUpdate({userid: userid},{$pull: {items: item._id}},function(err,c){
+            items.deleteOne({cartid: c._id,productid: productId},function(err){
 
-          });
+         
+  
+          
           if(cart.totalqty<1)
         {
           Cart.deleteOne({userid: userid},function(err){
 
           });
         }
+         });
+            });
+          }
           res.redirect('/shopping-cart');
-        }
-
+       
 
         
-
+      
       });
      });
 
@@ -465,7 +510,7 @@ router.get('/remove/:id',middleware.isLoggedIn, function(req, res, next) {
        console.log(err);
      }
      items.findOne({cartid: cart._id,productid: productId},function(err,item){
-       Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:-item.qty,totalprice: -item.price}},{new:true,upsert:true},function(err,cart){
+       Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:-item.qty,totalprice: -item.price},$pull: {items: item._id}},{new:true,upsert:true},function(err,cart){
         items.deleteOne({cartid: cart._id,productid: productId},function(err){ 
           if(cart.totalqty<1)
         {
@@ -489,18 +534,83 @@ router.get('/remove/:id',middleware.isLoggedIn, function(req, res, next) {
 });
 
 
-router.get('/checkout',middleware.isLoggedIn,function(req,res){
+router.post('/checkout',middleware.isLoggedIn,function(req,res){
   var userid=req.user.id;
   Cart.findOne({userid: userid},function(err,cart){
     if(err){
       console.log(err)
     }
-    res.render("checkout",{totalprice: cart.totalprice})
+
+    if(!req.body.coupon){
+
+    return res.redirect("/checkout");
+
+    }
+    discounts.findOne({code: req.body.coupon.toUpperCase(),expiryDate: {$gt: Date.now()}},function(err,coup){
+      if(!(coup)){
+        req.flash("error","no such coupon exist or coupon had expired");
+        return res.redirect("/shopping-cart");
+      }
+       if(coup.usage < coup.used ){
+        req.flash("error","no such coupon exist or coupon had expired");
+        return res.redirect("/shopping-cart");
+      }
+      coupon.findOneAndUpdate({user: req.user._id,cno: coup._id},{$inc: {usage: 1},$set: {cart: cart._id}},{upsert: true,new: true},function(err,cp){
+        if(cp.usage <= coup.ulimit){
+        
+          if(coup.type == 'p'){
+            coup.used += 1;
+            coup.save(function(err){
+               var disc = coup.amount / 100;
+              var discamount = cart.totalprice * disc;
+              cart.dtotalprice = ( (discamount > coup.limit) ? cart.totalprice - coup.limit : cart.totalprice - discamount);
+              cart.discount = coup._id;
+              cart.save(function(err){      
+                req.flash("success","coupon applied Successfully");
+                return res.redirect("/checkout");
+                if(err){
+                  console.log(err);
+                }
+
+              
+            }); 
+
+            })
+           
+          }
+         }
+         else{
+          req.flash("error","coupon can be applied only " + coup.ulimit + " times" );
+         return res.redirect("/shopping-cart");
+       
+
+         }
+         // 
+      })
+        
+        
+      });
+    });
   });
   
-});
 
-router.post('/checkout',function(req,res){
+
+router.get('/checkout',middleware.isLoggedIn,function(req,res){
+  Cart.findOne({userid: req.user._id},function(err,cart){
+    if(err){
+      console.log(err);
+    }
+    if(cart.dtotalprice){
+      res.render("checkout",{totalprice: cart.dtotalprice});
+    }
+    else{
+      res.render("checkout",{totalprice: cart.totalprice});
+    }
+    
+  })
+})
+
+router.post('/buynow',function(req,res){
   var userid=req.user.id;
   var orderid_=0;
   Cart.findOne({userid: userid},function(err,cart){
@@ -508,11 +618,13 @@ router.post('/checkout',function(req,res){
      {
       console.log(err)
      }
-     console.log(cart);
-     console.log(cart._id);
-     var stripe = require("stripe")(process.env.STRIPE_API_SECRET);
+     discounts.findOne({_id:cart.discount},function(err,discount){
+      if(discount){
+        discount.amountdiscounted = cart.totalprice - cart.dtotalprice;
+        discount.save(function(err){
+           var stripe = require("stripe")(process.env.STRIPE_API_SECRET);
         stripe.charges.create({
-        amount: cart.totalprice*100,
+        amount: ((cart.dtotalprice) ? cart.dtotalprice : cart.totalprice),
         currency: "usd",
         source: req.body.stripeToken, // obtained with Stripe.js
         description: "Test Charge"
@@ -525,9 +637,11 @@ router.post('/checkout',function(req,res){
       var Order = new order({
       userid: req.user.id,
       totalqty: cart.totalqty,
-      totalprice: cart.totalprice,
+      totalprice: ((cart.dtotalprice) ? cart.dtotalprice : cart.totalprice),
       address: req.body.address,
-      paymentId: charge.id
+      paymentId: charge.id,
+      items: cart.items,
+      discount: (discount ? discount.code : '-'),
     });
       Order.save(function(err,result){
 
@@ -539,12 +653,59 @@ router.post('/checkout',function(req,res){
             req.flash('success', 'Successfully bought product!');
             Cart.deleteMany({userid: userid},function(err){
               res.redirect('/home');
+       
+    })
+    
             });
             
 
         });
       });
 
+
+        })
+      }else{
+          var stripe = require("stripe")(process.env.STRIPE_API_SECRET);
+        stripe.charges.create({
+        amount: ((cart.dtotalprice) ? cart.dtotalprice : cart.totalprice),
+        currency: "usd",
+        source: req.body.stripeToken, // obtained with Stripe.js
+        description: "Test Charge"
+    }, function(err, charge) {
+        if (err) {
+            req.flash('error', err.message);
+            return res.redirect('/checkout');
+        }
+        console.log("hello");
+      var Order = new order({
+      userid: req.user.id,
+      totalqty: cart.totalqty,
+      totalprice: ((cart.dtotalprice) ? cart.dtotalprice : cart.totalprice),
+      address: req.body.address,
+      paymentId: charge.id,
+      items: cart.items,
+      discount: (discount ? discount.code : '-'),
+    });
+      Order.save(function(err,result){
+
+        orderid_=result._id;
+        items.update({cartid: cart._id},{$set: {cartid: orderid_}},{multi: true},function(err,i){
+          console.log(i);
+
+            req.flash('success', 'Successfully bought product!');
+            Cart.deleteMany({userid: userid},function(err){
+              res.redirect('/home');
+       
+    })
+    
+            });
+            
+
+        });
+      });
+
+      }
+      
       });
     });
 
@@ -554,7 +715,7 @@ router.post('/checkout',function(req,res){
 //profile logic
 //-----------------------------------------------------------------------
 
-router.get('/profile',middleware.isLoggedIn,function(req,res){
+router.get('/profile',middleware.isLoggedIn,reset,function(req,res,next){
   order.find({userid: req.user._id},function(err,orders){
 
          res.render('profile',{currentUser: req.user,orders: orders});
@@ -563,7 +724,7 @@ router.get('/profile',middleware.isLoggedIn,function(req,res){
 
 
 
-router.get('/orders/:id',middleware.isLoggedIn,function(req,res){
+router.get('/orders/:id',middleware.isLoggedIn,reset,function(req,res){
   items.find({cartid: req.params.id},function(err,items){
     res.render('order',{items: items})
   });
@@ -619,10 +780,8 @@ router.get("/additem",middleware.isLoggedIn,function(req,res){
 
 router.post("/additem",upload.single('image'),function(req,res){
 cloudinary.uploader.upload(req.file.path, function(result) {
-    console.log(result);
     var Food= new food({name: req.body.name,category: req.body.category,price: req.body.price, image: result.secure_url, description: req.body.description,pId: result.public_id})
     Food.save(function(err,food){
-      console.log(food);
       req.flash('success','product added Successfully');
       res.redirect("/additem")
     });  
@@ -739,7 +898,6 @@ router.get("/addadmin",middleware.isLoggedIn,function(req,res){
 })
 
 router.post("/addadmin",function(req,res){
-  console.log(req.body.name);
   User.findOne({username: req.body.name},function(err,result){
     if(result){
       if(result.isAdmin === true){
@@ -772,15 +930,105 @@ router.post("/discontinueadmin",function(req,res){
 //----------------------------------------------------------------------------------------------------------------------------
 //promo and discount logic
 
-router.get("/adddiscounts",middleware.isLoggedIn,function(req,res){
+//percentage coupons
+// ----------------------------------------------------------------------------
+
+router.get("/percentagediscounts",middleware.isLoggedIn,function(req,res){
   if(req.user && req.user.isAdmin){
-    res.render('discount');
+    res.render('percentagediscount');
   }
   else{
     req.flash("error","permission denied");
     res.redirect("/home");
   }
+});
+
+router.post("/percentagediscounts",function(req,res){
+  discounts.findOne({code: req.body.code.toUpperCase()},function(err,disc){
+    if(!disc){
+      discounts.create({code: req.body.code.toUpperCase(),type: "p",isActive: true,amount: Number(req.body.amount),expiryDate: req.body.date,usage: Number(req.body.usage),limit: Number(req.body.limit),ulimit: Number(req.body.ulimit)},function(err,d){
+        req.flash("success","coupon created!!")
+       return res.redirect("/percentagediscounts");
+      });
+        
+
+    }
+    else{
+      if(disc.isActive){
+         req.flash("error","coupon already exist");
+         return res.redirect("/percentagediscounts");
+      }else{
+         discounts.findOneAndUpdate({code: req.body.code.toUpperCase()},{$set: {isActive: true,amount: Number(req.body.amount),expiryDate: req.body.date,usage: Number(req.body.usage),limit: Number(req.body.limit),ulimit: Number(req.body.ulimit)}},function(err,d){
+             req.flash("success","coupon created!!")
+            return res.redirect("/percentagediscounts");
+         })
+      }
+     
+
+
+    }
+    
+  })
+
 })
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+router.get("/showdiscounts",middleware.isLoggedIn,function(req,res){
+ 
+ if(req.user && req.user.isAdmin){
+    discounts.find({},function(err,discounts){
+      res.render("showdiscount",{discounts: discounts});
+    })
+
+  }
+  else{
+    req.flash("error,permission denied");
+    res.redirect("/home");
+  }
+});
+
+router.post("/discontinueDiscount/:id",function(req,res){
+    if(req.user && req.user.isAdmin){
+    discounts.findOneAndUpdate({_id: req.params.id},{$set: {isActive: false}},function(err,discount){
+    req.flash("success","discontinued success");
+    res.redirect("/showdiscounts");
+  })
+
+  }
+  else{
+    req.flash("error,permission denied");
+    res.redirect("/home");
+  }
+
+});
+
+router.post("/editdiscount/:discountid",function(req,res){
+  console.log(req.params.discountid)
+  discounts.findOneAndUpdate({_id: req.params.discountid},{$set: {edit: true}},function(err,discount){
+  res.redirect("/editpercentagediscount");
+  
+    })
+    
+})
+ router.get("/editpercentagediscount",function(req,res){
+    if(req.user && req.user.isAdmin){
+     discounts.findOne({edit: true},function(err,discount){
+     res.render("editpercentagediscount",{discount: discount})
+   })
+
+   }
+   else{
+     req.flash("error,permission denied");
+     res.redirect("/home");
+  }
+ 
+  
+ })
+ 
+
+
+
 
 
 module.exports=router;
