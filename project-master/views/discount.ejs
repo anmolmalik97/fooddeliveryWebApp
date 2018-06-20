@@ -22,12 +22,27 @@
     <link href="css/helper.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" media="all"
+      href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css"    />
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:** -->
     <!--[if lt IE 9]>
     <script src="https:**oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https:**oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    var today = new Date();
+    $( "#dt" ).datepicker({minDate: today});
+  } );
+  </script>
+
+ 
 </head>
 
 <body class="fix-header fix-sidebar">
@@ -96,9 +111,17 @@
                                 <li><a href="/addadmin">edit users</a></li>
                             </ul>
                         </li>
-                        <li> <a class="has-arrow  " href="#" aria-expanded="false"><i class="fas fa-percent"></i><span class="hide-menu">promo and discounts</span></a>
+                        <li> <a class="has-arrow  " href="#" aria-expanded="false"><i class="fas fa-percent"></i><span class="hide-menu">ongoing discounts</span></a>
                             <ul aria-expanded="false" class="collapse">
-                                <li><a href="/adddiscounts">on going offers</a></li>
+                                <li><a href="/showdiscounts">edit on going offers</a></li>
+                            </ul>
+                        </li>
+                         <li> <a class="has-arrow  " href="#" aria-expanded="false"><i class="fas fa-chart-line"></i><span class="hide-menu">add new discounts</span></a>
+                            <ul aria-expanded="false" class="collapse">
+                                <li><a href="/fixedcartdiscounts">fixed cart</a></li>
+                                <li><a href="/percentagediscounts">percentage</a></li>
+                                <li><a href="/fixedproductdiscounts">fixed product</a></li>
+                                <li><a href="/newuserdiscounts">New User</a></li>
                             </ul>
                         </li>
                             </ul>
@@ -137,16 +160,56 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="form-validation">
-                                    <form class="form-valide" action="/discontinue" method="post">
-                                        <div class="form-group row">
-                                            <label class="col-lg-4 col-form-label" for="val-username">discount percentage<span class="text-danger">*</span></label>
+                                    <form class="form-valide" action="/discontinue" method="post" autocomplete="off">
+
+                                       <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-username">coupon code<span class="text-danger">*</span></label>
                                             <div class="col-lg-6">
-                                                <input type="text" class="form-control" id="val-username" name="name" placeholder="discount u want to start in %" required>
+                                                <input type="text" class="form-control" id="val-username" name="code" placeholder="enter couon code" required>
                                             </div>
-                                       
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-username">coupon type<span class="text-danger">*</span></label>
+                                            <div class="col-lg-6">
+                                                <select type="text" class="form-control" id="val-username" name="name" placeholder="discount u" required>
+                                                    <option selected>choose</option>
+                                                    <option></option>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-username">coupon amount<span class="text-danger">*</span></label>
+                                            <div class="col-lg-6">
+                                                <input type="text" class="form-control" id="val-username" name="amount" placeholder="Enter coupon amount" required>
+                                            </div>
+                                        </div>
+                                         <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-username">enter product IDs<span class="text-danger">*</span></label>
+                                            <div class="col-lg-6">
+                                                <input type="text" class="form-control" id="val-username" name="id" placeholder="enter product id">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="date">expiry date<span class="text-danger">*</span></label>
+                                            <div class="col-lg-6">
+                                                <input   class="form-control input" id="dt" name="date" placeholder="YYYY-DD-MM" required>
+                                            </div>
+                                        </div>
+                                         <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-username">usage<span class="text-danger">*</span></label>
+                                            <div class="col-lg-6">
+                                                <input type="text" class="form-control" id="val-username" name="usage" placeholder="enter the no of times u want to use ur coupon">
+                                            </div>
+                                        </div>
+                                         <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-username">limit<span class="text-danger">*</span></label>
+                                            <div class="col-lg-6">
+                                                <input type="text" class="form-control" id="val-username" name="usage" placeholder="enter the total amount limit in inr">
+                                            </div>
+                                        </div>
+
                                         <div class="form-group row">
                                             <div class="col-lg-6 mr-auto">
-                                                <button type="submit" class="btn btn-success ">start</button>
+                                                <button type="submit" class="btn btn-success ">create coupon</button>
                                             </div>
                                         </div>
                                     </form>
@@ -166,7 +229,8 @@
     </div>
     <!-- End Wrapper -->
     <!-- All Jquery -->
-    <script src="js/lib/jquery/jquery.min.js"></script>
+    
+   
     <!-- Bootstrap tether Core JavaScript -->
     <script src="js/lib/bootstrap/js/popper.min.js"></script>
     <script src="js/lib/bootstrap/js/bootstrap.min.js"></script>
@@ -201,7 +265,7 @@
     <!-- scripit init-->
 
     <script src="js/scripts.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/locale/af.js"></script>
 </body>
 
 </html>

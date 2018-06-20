@@ -1,10 +1,10 @@
 var mongoose=require("mongoose");
 
 var schema=new mongoose.Schema({
-	cartid:{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "cart"
-	},
+	 cartid:{
+	 	type: mongoose.Schema.Types.ObjectId,
+	 	ref: "user"
+	 },
 	productid:{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "food"	
@@ -13,9 +13,9 @@ var schema=new mongoose.Schema({
 	qty: 0,
 	name: String,
 	orderid:{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "Order"
-	}
+	 	type: mongoose.Schema.Types.ObjectId,
+	 	ref: "Order"
+	 }
 });
 
 module.exports=mongoose.model("items",schema)

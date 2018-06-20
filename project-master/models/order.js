@@ -10,7 +10,9 @@ var schema = new Schema({
     totalqty: 0,
     totalprice: 0,
     address: String,
-    paymentId: String
+    paymentId: String,
+    items: [{type: mongoose.Schema.Types.ObjectId,ref: 'items'}],
+    discount: String,
 });
 
 module.exports = mongoose.model('Order', schema);
