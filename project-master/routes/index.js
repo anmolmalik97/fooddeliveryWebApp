@@ -403,6 +403,18 @@ router.post("/login",passport.authenticate("local",
     }
 });
 
+//facebook login
+
+router.get('/auth/facebook', passport.authenticate('facebook', {scope: ['email']}));
+
+router.get('/auth/facebook/callback', passport.authenticate('facebook', {
+   successRedirect: '/ordernow',
+   failureRedirect: '/',
+   failureFlash: true }));
+
+
+
+
 router.get("/logout", function(req, res){
    req.logout();
    res.redirect("/home");

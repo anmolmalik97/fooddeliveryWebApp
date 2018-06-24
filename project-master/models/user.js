@@ -16,6 +16,12 @@ var UserSchema = new mongoose.Schema({
     verifyExpires: Date,
     isVerified: {type:Boolean,default:false},
     orderno: Number,
+    facebook:{
+        id: String,
+        token: String,
+        email: String,
+        userName: String
+    }
 });
 
 UserSchema.plugin(passportLocalMongoose)
