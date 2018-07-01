@@ -67,6 +67,9 @@ cloudinary.config({
 
 
 // config ends
+router.get('/maps',function(req,res){
+  res.render('googlemapscheck');
+})
 
 //image upload route
 
@@ -290,7 +293,7 @@ router.post("/signup", function(req, res){
   }
   else{
     
-     var newUser = new User({username: req.body.username,email:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
+     var newUser = new User({username: req.body.username,eemail:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
 
      //User.register(newUser, req.body.password, function(err, user){
          // if(err){
@@ -461,7 +464,13 @@ router.get('/shopping-cart',middleware.isLoggedIn, function(req, res, next) {
             return res.render("shoppingcart",{cart: cart,items: null});
           }
           else{
-            return res.render("shoppingcart",{cart: cart,items: items})
+            if(req.user.address){
+              return res.render("shoppingcart",{cart: cart,items: items,address: req.user.address})
+            }
+            else{
+              return res.render("shoppingcart",{cart: cart,items: items,address: null})
+            }
+            
           }
         })
 
@@ -650,7 +659,7 @@ router.post('/buynow',function(req,res){
       userid: req.user.id,
       totalqty: cart.totalqty,
       totalprice: ((cart.dtotalprice) ? cart.dtotalprice : cart.totalprice),
-      address: req.body.address,
+      billingAddress: req.body.address,
       paymentId: charge.id,
       items: cart.items,
       discount: (discount ? discount.code : '-'),
@@ -1037,6 +1046,10 @@ router.post("/editdiscount/:discountid",function(req,res){
  
   
  })
+
+ // maps routs-----------------
+ router.post("/setlocation")
+ //-----------------------
  
 
 

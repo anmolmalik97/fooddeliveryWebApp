@@ -8,8 +8,9 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" href="logo.png" type="shortcut-icon" sizes="16x16">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-social.css">
     <title>Login</title>
     <style type="text/css">
       body{
@@ -86,7 +87,7 @@ body {
     }
 }
 
-.btn {
+.a {
     display: block;
     width: 100%;
     padding: 20px;
@@ -95,10 +96,10 @@ body {
     outline: 0;
     border: 0;
     color: white;
-    background: $color-primary;
+    background: #2c2f33;
     transition: 0.2s;
     }
-.btn:hover{
+.a:hover{
      color: white;
      background-color: black; 
     }
@@ -145,39 +146,12 @@ body {
         background-position: 0 0
     }
 }
-.btn-facebook {
-    color: #ffffff;
-    -webkit-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-    background-color: #2b4b90;
-    *background-color: #133783;
-    background-image: -moz-linear-gradient(top, #3b5998, #133783);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#3b5998), to(#133783));
-    background-image: -webkit-linear-gradient(top, #3b5998, #133783);
-    background-image: -o-linear-gradient(top, #3b5998, #133783);
-    background-image: linear-gradient(to bottom, #3b5998, #133783);
-    background-repeat: repeat-x;
-    border-color: #133783 #133783 #091b40;
-    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3b5998', endColorstr='#ff133783', GradientType=0);
-    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+.btn-facebook{
+    color: #fff;
+    background-color: #3b5998;
+    border-color: rgba(0,0,0,0.2);
 }
 
-    .btn-facebook:hover,
-    .btn-facebook:focus,
-    .btn-facebook:active,
-    .btn-facebook.active,
-    .btn-facebook.disabled,
-    .btn-facebook[disabled] {
-        color: #ffffff;
-        background-color: #133783 !important;
-        *background-color: #102e6d !important;
-    }
-
-    .btn-facebook:active,
-    .btn-facebook.active {
-        background-color: #0d2456 \9 !important;
-    }
     </style>
   </head>
   <body>
@@ -224,7 +198,7 @@ body {
         <div class="form__group">
             <input type="password" placeholder="Password" name="password" class="form__input" />
         </div>
-        <button class="btn">Submit</button>
+        <button class="btn a">Submit</button>
         <hr>
         <a href="/signup"><strong>New user?  signup...</strong></a>
         <br>
@@ -232,7 +206,10 @@ body {
     </form>
     <hr/>
     <center><h4>OR</h4></center>
-    <a class="btn btn-lg btn-facebook btn-block" type="submit" value="Login via facebook" href="/auth/facebook">
+    <a class="btn btn-block btn-facebook" href="/auth/facebook/">
+        <span class="fab fa-facebook"> Facebook</span>
+    </a>
+    
 </div>
 
     <!-- Optional JavaScript

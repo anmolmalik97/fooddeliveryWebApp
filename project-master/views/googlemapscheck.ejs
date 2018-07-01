@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+       /* Set the size of the div element that contains the map */
+      #map {
+        height: 400px;  /* The height is 400 pixels */
+        width: 100%;  /* The width is the width of the web page */
+       }
+    </style>
+  </head>
+  <body>
+    <h3>My Google Maps Demo</h3>
+    <!--The div element for the map -->
+    <form method="post" action="/setlocation">
+    <input type="text" name="google" id="location-text-box">
+    <br>
+    <div id="map"></div>
+    <br>
+    <div id="address"></div>
+    <br>
+    <button type="submbit" >set delivery address</button>
+    </form>
+    
+    <script
+  src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+  crossorigin="anonymous"></script>
+    <script>
+      var map;
+var marker;
+
+function initialize() {
+  var mapOptions = {
+    zoom: 17
+  };
+  map = new google.maps.Map(document.getElementById('map'),
+    mapOptions);
+  var geocoder = new google.maps.Geocoder;
+  var service = new google.maps.DistanceMatrixService();
+
+  // Get GEOLOCATION
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude,
+        position.coords.longitude);
+      var latlng = {lat: parseFloat(position.coords.latitude), lng: parseFloat(position.coords.longitude)};
+      map.setCenter(pos);
+      marker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        draggable: true
+      });
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === 'OK') {
+            if (results[0]) {
+              $('#address').text('Detected location: ' + results[0].formatted_address);
+              $('#location-text-box').val(results[4].formatted_address);
+              console.log(results);
+            }
+          }
+      })
+      var origin = 'jamia millia islamia';
+      var destination = pos;
+      service.getDistanceMatrix({
+        origins: [origin],
+        destinations: [destination],
+        travelMode: 'DRIVING'
+      },function(response,status){
+        console.log(response);
+        console.log(status);
+      })
+    }, function() {
+      handleNoGeolocation(true);
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+
+  function handleNoGeolocation(errorFlag) {
+    if (errorFlag) {
+      var content = 'Error: The Geolocation service failed.';
+    } else {
+      var content = 'Error: Your browser doesn\'t support geolocation.';
+    }
+
+    var options = {
+      map: map,
+      position: new google.maps.LatLng(28.5610182, 77.28435510000008),
+      content: content
+    };
+
+    map.setCenter(options.position);
+    marker = new google.maps.Marker({
+      position: options.position,
+      map: map,
+      draggable: true
+    });
+    $('#address').text('cant locate u..locate yourself manually');
+
+  }
+
+  // get places auto-complete when user type in location-text-box
+  var input = /** @type {HTMLInputElement} */
+    (
+      document.getElementById('location-text-box'));
+
+
+  var autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.bindTo('bounds', map);
+
+  var infowindow = new google.maps.InfoWindow({
+    content: '<h1>hello world<h1>'});
+  marker = new google.maps.Marker({
+    map: map,
+    anchorPoint: new google.maps.Point(0, -29),
+    draggable: true
+  });
+
+  google.maps.event.addListener(autocomplete, 'place_changed', function() {
+    infowindow.close();
+    marker.setVisible(false);
+    var place = autocomplete.getPlace();
+    if (!place.geometry) {
+      return;
+    }
+    var origin = 'jamia millia islamia';
+      var destination = place.geometry.location;
+      service.getDistanceMatrix({
+        origins: [origin],
+        destinations: [destination],
+        travelMode: 'DRIVING'
+      },function(response,status){
+        console.log(response);
+        console.log(status);
+      });
+
+    // If the place has a geometry, then present it on a map.
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+      map.setZoom(17); // Why 17? Because it looks good.
+    }
+    // marker.setIcon( /** @type {google.maps.Icon} */ ({
+    //   url: place.icon,
+    //   size: new google.maps.Size(71, 71),
+    //   origin: new google.maps.Point(0, 0),
+    //   anchor: new google.maps.Point(17, 34),
+    //   scaledSize: new google.maps.Size(35, 35)
+    // }));
+    marker.setPosition(place.geometry.location);
+    marker.setVisible(true);
+
+    var address = '';
+    if (place.address_components) {
+      address = [
+        (place.address_components[0] && place.address_components[0].short_name || ''), (place.address_components[1] && place.address_components[1].short_name || ''), (place.address_components[2] && place.address_components[2].short_name || '')
+      ].join(' ');
+    }
+     $('#address').text('you entered: ' + address);
+  });
+   
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+}
+
+
+
+    </script>
+    <!--Load the API from the specified URL
+    * The async attribute allows the browser to render the page while the API loads
+    * The key parameter will contain your own API key (which is not needed for this tutorial)
+    * The callback parameter executes the initMap() function
+    -->
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeH7IAnhw6m_EseE6xtSOueQ-Bg86b0uA&callback=initialize&libraries=geometry,places">
+    </script>
+  </body>
+</html>

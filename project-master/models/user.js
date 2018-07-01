@@ -21,7 +21,8 @@ var UserSchema = new mongoose.Schema({
         token: String,
         email: String,
         userName: String
-    }
+    },
+    address: [{type: String}],
 });
 
 UserSchema.plugin(passportLocalMongoose)
