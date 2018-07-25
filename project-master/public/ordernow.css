@@ -20,3 +20,9 @@ body{
 .grey{
 	background-color: #e9ecef;
 }
+
+@media (max-width: 500px) {
+	.a {
+		font-size: 50px;
+	}
+}

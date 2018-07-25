@@ -16,7 +16,7 @@
     <title>Order</title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
         <a href="/home" class="navbar-brand"><img src="logo.png" height="30" width="30"><strong>FOODEZZY</strong></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,22 @@
                <a class="nav-link" href="home"><i class="fas fa-home"></i> Home</a>
              </li>
              <li class="navbar-item">
+               <a href="/ordernow" class="nav-link"><i class="fas fa-utensils"></i> Categories</a>
+             </li>
+             <li class="navbar-item">
+               <a href="/profile" class="nav-link"><i class="fas fa-user"></i> profile</a>
+             </li>
+             <li class="navbar-item">
                <a href="/logout" class="nav-link"><i class="fas fa-user"></i> Logout</a>
+             </li>
+              <li class="navbar-item">
+               <a href="/shopping-cart" class="nav-link"><i class="fas fa-shopping-cart"></i> Cart <span class="badge badge-secondary">
+                <%if(!cart){%>
+                  0
+                <%}else{%>
+                <%=cart.totalqty%>
+                  <%}%>
+                </span></a>
              </li>
              <% } %>
             
@@ -63,78 +78,23 @@
   <div class="container">
   <h1 class="display-4" style="text-align: center;">HandPicked For You!!</h1>
   <hr class="my-4">
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="pasta.jpg" alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Penne Pasta with egg plant</h5>
-    <p class="card-text">penne pasta taused in white sauce with fingerlicking fried eggplants and red sauce.</p>
-    <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
-</div>
+<div class="row">
+      <% for(var i=0;i<food.length;i++){%>
+      <%if(food[i].category=="south"){%>
+      <div class="col-md-4" style="margin-top: 40px;">
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="<%=food[i].image%>" alt="Card image cap" style="height: 200px">
+          <div class="card-body">
+            <h5 class="card-title"><%=food[i].name%></h5>
+            <p class="card-text"><%=food[i].description%></p>
+            <a href="/north/addtocart/<%=food[i]._id%>"  class="btn btn-primary">Add to cart</a>
+            <p style="display: inline; float: right"><strong><%=food[i].price%> rs</strong></p>
+          </div>
+        </div>
+      </div>
+      <%}%>
+      <%}%>
     </div>
-     <div class="col-md-4">
-      <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="burger.jpg" alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Explosive burger</h5>
-    <p class="card-text">Best burger in the town with smoked patty,served with french fries.</p>
-    <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
-</div>
-    </div>
-     <div class="col-md-4">
-      <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="chickennoodle.jpg" alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Chicken noodle</h5>
-    <p class="card-text">Chicken noodle mixed with some oriental salad,one of our best oriental cuisine.</p>
-    <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
-</div>
-
-
-
-    </div>
-  </div>
-
-  <br>
-
-   <div class="row">
-    <div class="col-md-4">
-      <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="pasta.jpg" alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Penne Pasta with egg plant</h5>
-    <p class="card-text">penne pasta taused in white sauce with fingerlicking fried eggplants and red sauce.</p>
-    <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
-</div>
-    </div>
-     <div class="col-md-4">
-      <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="burger.jpg" alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Explosive burger</h5>
-    <p class="card-text">Best burger in the town with smoked patty,served with french fries.</p>
-    <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
-</div>
-    </div>
-     <div class="col-md-4">
-      <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="chickennoodle.jpg" alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Chicken noodle</h5>
-    <p class="card-text">Chicken noodle mixed with some oriental salad,one of our best oriental cuisine.</p>
-    <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
-</div>
-
-
-</div>
-</div>
 </div>
 </div>
 

@@ -47,6 +47,9 @@
                <a href="#" class="nav-link"><i class="fas "></i> Welcome <%= currentUser.username %></a>
              </li>
              <li class="navbar-item">
+               <a href="/profile" class="nav-link"><i class="fas fa-user"></i> profile</a>
+             </li>
+             <li class="navbar-item">
                <a href="/logout" class="nav-link"><i class="fas fa-user"></i> Logout</a>
              </li>
              <% } %>
@@ -74,29 +77,9 @@
     <div id="head">
       <div class="container">
          <img src="logo.png" height="100px" width="100px">
-          <h2>Find the best restaurants and bars in Delhi NCR</h1>
+          <h2>Welcome to your favourite place..</h1>
+           <a href="/ordernow"><button class=" btn btn-dark"><h5>Click here to Order now...</h5></button></a> 
             <br>
-            <div class="container">
-              
-           
-                
-          <div id="swrap2">
-            <div class="input-group mb-3">
-            <div class="input-group-prepend">
-           <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
-            </div>
-            <input size="50%" type="text" class="form-control" placeholder="Search for restaurants and cuisines" aria-label="Search for restaurants and cuisines" aria-describedby="basic-addon1">
-          </div>
-        </div>
-            
-
-            <div id="swrap3">
-              <button type="button" class="btn btn-dark">Search</button>
-            </div>
-            
-            </div>
-          
-         
             <br>
         </div>
       </div>
@@ -105,249 +88,41 @@
       <h3 id="how">how it works?</h2>
       <img src="process.png" class="img-fluid">
    </div>
-   <div class="head2">
-     <div class="jumbotron jumbotron-fluid">
+
+
+    <div class="container-fluid" style="background-color: #EAECEF;">
+      <br>
+    <div style="text-align: center;margin: auto;">
+      <h1>About Us</h1>
+      <br>
+    </div>
+      <div class="row">
+        <div class="col-sm-4" style="margin: auto;">
+          <img src="anmol.png" class="img-fluid rounded-circle" style="max-height: 200px;" alt="">
+        </div>
+        <div class="col-sm-8" style="margin: auto; float: left">
+          <p style="text-align: left;">Its an FoodDelivery WebApp,One of my very first project,which i developed while i started learning web development.
+          This app is based on Node js,Express js and Mongo DB and it can perform all the basic functionalities of a FoodDelivery WebApp.
+          This app have a very flexible admin panel from where the admin can create discount coupons,add new products,edit existing products,create new admins,edit existing admins,set delivery distance and manage all the users and their exisiting orders!
+          <br>
+          <br>
+          You can see its source code <a href="https://github.com/anmolmalik97/fooddeliveryWebApp">Here</a>
+          </p>
+          <br>
+        </div>
+      </div>
+      <br>
+     <br>
+ </div>
+
+
+
+<div class="jumbotron jumbotron-fluid" style="background-color: #282C35; color: white;">
   <div class="container">
-   <div class="row">
-  <div class="col-sm-6">
 
-
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title"><i class="fas fa-user"></i>  BE A COSTUMER</h5>
-        <p class="card-text">foodezzy gives you best service with best taste in the town.<br>join us and get best services in the town!</p>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Sign Up</button>   
-<!-- Modal 1-->
-        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Create Profile</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-        <!-- Sign up page-->
-
-        <form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="Email">
-    </div>
-    <div class="form-group col-md-6">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="inputAddress">Address</label>
-    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
-  </div>
-  <div class="form-group">
-    <label for="inputAddress2">Address 2</label>
-    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
-  </div>
-
-  <div class="form-group">
-    <label for="inputAddress">Phone Number</label>
-    <input type="text" class="form-control" id="inputAddress">
-  </div>
-
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity">
-    </div>
-    <div class="form-group col-md-4">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
-    </div>
-    <div class="form-group col-md-2">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip">
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck">
-      <label class="form-check-label" for="gridCheck">Remember me </label>
-    </div>
-  </div>
-
-  <!-- Sign up page end -->
-
-</form>
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Sign Up</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!--Modal 1 End-->
-      </div>
-    </div>
-  </div>
-
-
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title"><i class="fas fa-utensils"></i>   BE A PARTNER</h5>
-        <p class="card-text">We give our best to costumers so we want the best.<br>Join us and be a part of most trusted and relaible food delivery service</p>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Sign Up</button>
-
-        <!-- Modal 2 -->
-        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Create Profile</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-        <!-- Sign up page-->
-
-        <form>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="Email">
-    </div>
-    <div class="form-group col-md-6">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="inputAddress">Address</label>
-    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
-  </div>
-  <div class="form-group">
-    <label for="inputAddress2">Address 2</label>
-    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
-  </div>                                            
-   <div class="form-group">
-    <label for="inputAddress">Phone Number</label>
-    <input type="text" class="form-control" id="inputAddress">
-  </div>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity">
-    </div>
-    <div class="form-group col-md-4">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
-    </div>
-    <div class="form-group col-md-2">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip">
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck">
-      <label class="form-check-label" for="gridCheck">Remember Me</label>
-    </div>
-  </div>
-
-  <!-- Sign up page end -->
-
-</form>
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Sign Up</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!--Modal 2 End-->
-
-      </div>
-    </div>
-  </div>
-</div>
-
-  </div>
-</div>
-
-   </div>
-
-  <div class="jumbotron jumbotron-fluid" style="background-color: #282C35; color: white;">
-  <div class="container">
-    
-  </div>
-</div>
-<!-- sign in modal -->
-
-<!-- Modal register-->
-        <div class="modal fade" id="modalRegister" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Secure Login</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-        <!-- Sign up page-->
-
-        <form>
-      <label for="inputEmail4">Username</label>
-      <input type="text" class="form-control" id="inputEmail4" name="username" placeholder="username">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" name="password" id="inputPassword4" placeholder="Password">
   
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck">
-      <label class="form-check-label" for="gridCheck">Remember me </label>
-    </div>
-  </div>
-  <button class="btn btn-primary">Login</button>
- 
-  <!-- Sign up page end -->
-
-</form>
-        
-      </div>
-      <div class="modal-footer">
-        
-    </div>
-  </div>
-</div>
-<!--Modal regiater End-->
-      </div>
-    </div>
-  </div>
-
-
-
-
-
-
 <div class="last">
  &copy; FOODEZZY 2018. All Rights Reserved.
-
 </div>
 
     <!-- Optional JavaScript -->

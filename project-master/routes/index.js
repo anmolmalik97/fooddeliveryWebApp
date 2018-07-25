@@ -18,7 +18,6 @@ require('dotenv').config();
 // ----------------------------------------functions------------------------------------
 var reset=function resetcoupon(req,res,next){
   if(req.user){
-    console.log("i am here");
      Cart.find({userid: req.user._id},function(err,cart){
       if(cart){
         Cart.findOneAndUpdate({userid: req.user._id},{$set: {discount: null,dtotalprice: undefined}},function(err,c){
@@ -233,10 +232,19 @@ router.get("/home",reset,function(req,res){
 });
 
 router.get("/ordernow",middleware.isLoggedIn,reset,function(req,res){
- res.render("ordernow",{currentUser:req.user});
- console.log(req.user);
+   limitrecords=3;
 
-
+    function getRandomArbitrary(min, max) {
+      return Math.ceil(Math.random() * (max - min) + min);
+    }
+    
+  food.count().exec(function (err, count) {
+  var skipRecords = getRandomArbitrary(1, count-limitrecords);
+  food.find().skip(skipRecords).exec(
+    function (err, result) {
+      res.render("ordernow",{currentUser:req.user,food: result});
+    })
+})
 });
 
 // show register form
@@ -272,17 +280,42 @@ router.get("/north",reset,middleware.isLoggedIn,function(req,res){
 
 router.get("/south",middleware.isLoggedIn,reset,function(req,res){
     
-   res.render("south"); 
+   Cart.findOne({userid: req.user._id},function(err,cart){  
+   food.find({}, function(err, food){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("south",{food:food,cart:cart});
+       }
+    });
+  });
 });
   
   router.get("/chinese",middleware.isLoggedIn,reset,function(req,res){
     
-   res.render("chinese"); 
+   Cart.findOne({userid: req.user._id},function(err,cart){  
+   food.find({}, function(err, food){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("chinese",{food:food,cart:cart});
+       }
+    });
+  });
 });
   
   router.get("/shakes",middleware.isLoggedIn,reset,function(req,res){
     
-   res.render("shakes"); 
+    
+   Cart.findOne({userid: req.user._id},function(err,cart){  
+   food.find({}, function(err, food){
+       if(err){
+           console.log(err);
+       } else {
+          res.render("shakes",{food:food,cart:cart});
+       }
+    });
+  });
 });
   
 //handle sign up logic
@@ -293,7 +326,7 @@ router.post("/signup", function(req, res){
   }
   else{
     
-     var newUser = new User({username: req.body.username,eemail:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
+     var newUser = new User({username: req.body.username,email:req.body.email,profileUrl: "http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif"});
 
      //User.register(newUser, req.body.password, function(err, user){
          // if(err){
@@ -430,6 +463,7 @@ router.get('/:category/addtocart/:id', middleware.isLoggedIn,function(req, res, 
     var userid=req.user._id;
     food.findById(productId,function(err,food){
      if(err){
+
       console.log(err);
      }
      Cart.findOneAndUpdate({userid: userid},{$inc:{totalqty:1,totalprice: food.price}},{new:true,upsert:true},function(err,cart){
@@ -654,7 +688,6 @@ router.post('/buynow',function(req,res){
             req.flash('error', err.message);
             return res.redirect('/checkout');
         }
-        console.log("hello");
       var Order = new order({
       userid: req.user.id,
       totalqty: cart.totalqty,
@@ -667,9 +700,7 @@ router.post('/buynow',function(req,res){
       Order.save(function(err,result){
 
         orderid_=result._id;
-        console.log(orderid_)
         items.update({cartid: cart._id},{$set: {cartid: orderid_}},{multi: true},function(err,i){
-          console.log(i);
 
             req.flash('success', 'Successfully bought product!');
             Cart.deleteMany({userid: userid},function(err){
@@ -697,7 +728,6 @@ router.post('/buynow',function(req,res){
             req.flash('error', err.message);
             return res.redirect('/checkout');
         }
-        console.log("hello");
       var Order = new order({
       userid: req.user.id,
       totalqty: cart.totalqty,
@@ -711,7 +741,6 @@ router.post('/buynow',function(req,res){
 
         orderid_=result._id;
         items.update({cartid: cart._id},{$set: {cartid: orderid_}},{multi: true},function(err,i){
-          console.log(i);
 
             req.flash('success', 'Successfully bought product!');
             Cart.deleteMany({userid: userid},function(err){
@@ -766,7 +795,6 @@ router.get('/admin',middleware.isLoggedIn,function(req,res){
    {$group: {_id: null,total: {$sum: "$totalprice"}}}
  ],function(err,total){
    if(total.length>0){
-    console.log(total)
     res.render("admin",{ucount: ucount, ocount: ocount, currentUser: req.user,total: total[0].total})
    }
    else{
@@ -1025,7 +1053,6 @@ router.post("/discontinueDiscount/:id",function(req,res){
 });
 
 router.post("/editdiscount/:discountid",function(req,res){
-  console.log(req.params.discountid)
   discounts.findOneAndUpdate({_id: req.params.discountid},{$set: {edit: true}},function(err,discount){
   res.redirect("/editpercentagediscount");
   

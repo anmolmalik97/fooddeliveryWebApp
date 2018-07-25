@@ -15,7 +15,7 @@ var express     = require("express"),
     routes      =require("./routes/index"),
     facebookStrategy = require("passport-facebook").Strategy
 
-mongoose.connect("mongodb://localhost/onlinefoodapp");
+mongoose.connect("mongodb://anmol97m:Anu123@ds145921.mlab.com:45921/onlinefoodapp");
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine","ejs");
 app.use(express.static(__dirname + "/public"));
@@ -43,12 +43,14 @@ passport.use(new facebookStrategy({
     },
     function(accessToken, refreshToken, profile, done) {
         process.nextTick(function(){
-          console.log(profile.name);
           User.findOne({'facebook.id': profile.id}, function(err, user){
             if(err)
               return done(err);
-            if(user)
+            if(user){
+              user.profileUrl = profile.photos ? profile.photos[0].value : 'http://techtalk.ae/wp-content/uploads/2014/11/no-profile-img.gif';
+              user.save()
               return done(null, user);
+            }
             else {
               var newUser = new User();
               newUser.facebook.id = profile.id;
@@ -63,7 +65,6 @@ passport.use(new facebookStrategy({
                   throw err;
                 return done(null, newUser);
               })
-              console.log(profile);
             }
           });
         });
