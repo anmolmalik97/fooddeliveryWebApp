@@ -38,7 +38,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.use(new facebookStrategy({
       clientID: process.env.FB_CLIENTID,
       clientSecret: process.env.FB_CLIENTSECRET,
-      callbackURL: 'http://https://gentle-hollows-79859.herokuapp.com/auth/facebook/callback',
+      callbackURL: 'https://gentle-hollows-79859.herokuapp.com/auth/facebook/callback',
       profileFields: ['id', 'displayName', 'email','picture.type(large)']
     },
     function(accessToken, refreshToken, profile, done) {
