@@ -15,7 +15,7 @@ var express     = require("express"),
     routes      =require("./routes/index"),
     facebookStrategy = require("passport-facebook").Strategy
 
-mongoose.connect("mongodb://anmol97m:Anu123@ds145921.mlab.com:45921/onlinefoodapp");
+mongoose.connect(process.env.db);
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine","ejs");
 app.use(express.static(__dirname + "/public"));
