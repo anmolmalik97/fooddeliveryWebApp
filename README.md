@@ -5,7 +5,7 @@
 
 ## Live Demo
 
-To see this app in action,Go here [https://gentle-hollows-79859.herokuapp.com/](https://gentle-hollows-79859.herokuapp.com/)
+To see this app in action,Go here [https://foodezzy.herokuapp.com//](https://gentle-hollows-79859.herokuapp.com/)
 
 ## Features
 
